@@ -1,0 +1,72 @@
+# Actividad 3: Modelado de Arquitectura - Diagrama de Clases
+
+## Contexto del Sistema
+Diseño estructural para la gestión de una **Biblioteca**. El sistema controla el inventario de ejemplares, el registro de socios y el ciclo de vida de los préstamos. La lógica de negocio permite que un usuario gestione múltiples transacciones de préstamo, vinculando cada registro a un ejemplar específico del catálogo.
+
+---
+
+## 1. Documentación de Estructura de Clases
+
+### Clase: `Usuario`
+Representa al socio de la biblioteca y gestiona sus interacciones con el inventario.
+
+| Miembro | Tipo | Definición |
+| :--- | :--- | :--- |
+| `- id` | int | Clave primaria del usuario. |
+| `- nombre` | String | Nombre de pila del socio. |
+| `- apellido` | String | Apellidos del socio. |
+| `- email` | String | Dirección de contacto institucional o personal. |
+| `+ consultarPrestamos()` | List | Recupera la colección de registros vinculados al usuario. |
+| `+ solicitarPrestamo(libro)` | Prestamo | Instancia un nuevo objeto de préstamo para un libro dado. |
+
+### Clase: `Libro`
+Define las propiedades del catálogo y el estado de disponibilidad física.
+
+| Miembro | Tipo | Definición |
+| :--- | :--- | :--- |
+| `- isbn` | String | Identificador internacional normalizado del libro. |
+| `- titulo` | String | Título registrado de la obra. |
+| `- autor` | String | Responsable de la creación literaria. |
+| `- disponible` | boolean | Flag de estado para control de circulación. |
+| `+ mostrarInfo()` | String | Serializa los datos del libro para visualización. |
+| `+ marcarPrestado()` | void | Actualiza el estado de disponibilidad a negativo. |
+| `+ marcarDisponible()` | void | Restablece el estado de disponibilidad a positivo. |
+
+### Clase: `Prestamo`
+Entrada transaccional que regula el tiempo y las condiciones de la posesión del libro.
+
+| Miembro | Tipo | Definición |
+| :--- | :--- | :--- |
+| `- id` | int | Identificador correlativo de la transacción. |
+| `- fechaPrestamo` | Date | Timestamp de salida del ejemplar. |
+| `- fechaDevolucion` | Date | Plazo máximo de entrega acordado. |
+| `- estado` | String | Clasificación lógica: activo, entregado o en mora. |
+| `+ estaVigente()` | boolean | Lógica de comparación entre fecha actual y límite. |
+| `+ renovar()` | void | Procedimiento para extender el término del contrato. |
+| `+ calcularMora()` | double | Lógica de cálculo de sanciones financieras por retraso. |
+
+---
+
+## 2. Lógica de Relaciones y Multiplicidad
+
+La integridad referencial del modelo se define bajo las siguientes reglas:
+
+| Relación | Tipo | Multiplicidad | Descripción |
+| :--- | :--- | :--- | :--- |
+| `Usuario` a `Prestamo` | Asociación | 1 : 1..* | Un socio puede ser titular de uno o varios registros de préstamo. |
+| `Prestamo` a `Libro` | Asociación | 1..* : 1 | Cada registro de préstamo apunta a un único ejemplar del catálogo. |
+
+**Interpretación Técnica:**
+* La relación entre **Usuario** y **Prestamo** permite la trazabilidad histórica de los movimientos de un socio.
+* La relación entre **Prestamo** y **Libro** garantiza que no existan préstamos "huérfanos" sin una referencia física. Aunque un libro puede asociarse a muchos préstamos históricamente, el atributo de disponibilidad asegura la exclusividad del préstamo actual.
+
+---
+
+## 3. Análisis de Componentes del Objeto
+
+Para el diseño de este modelo se ha distinguido claramente entre el estado y el comportamiento de las clases:
+
+* **Atributos (Estado):** Son las variables que definen las propiedades de la entidad. Por ejemplo, en la clase `Libro`, el atributo `disponible` almacena un valor booleano que determina si el objeto puede participar en una nueva relación de préstamo.
+* **Métodos (Comportamiento):** Son las funciones que operan sobre los atributos. En el mismo ejemplo, `marcarPrestado()` es el método encargado de mutar el estado del atributo `disponible` de `true` a `false`.
+
+**Conclusión:** Mientras que el atributo describe **cómo es** el objeto en un momento dado, el método define **cómo reacciona** ante los eventos del sistema.

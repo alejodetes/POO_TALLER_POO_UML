@@ -1,0 +1,77 @@
+# Actividad 1: Principios de Diseño de Software
+
+## Contexto del Proyecto
+El sistema está diseñado para la gestión integral de un centro deportivo. Su objetivo es administrar el registro de entrenadores, la creación de planes de entrenamiento y la gestión de usuarios, permitiendo vincular a cada socio con un programa específico y un instructor responsable.
+
+---
+
+## 1. Principios de Diseño Aplicables
+
+### 1.1 Abstracción
+La abstracción permite enfocarse en las características esenciales de los objetos del dominio, ocultando la complejidad innecesaria. 
+- **Aplicación:** El módulo de Usuario interactúa con el Plan de Entrenamiento a través de una interfaz simplificada. El usuario conoce la duración y los ejercicios, pero no necesita entender la lógica matemática o los algoritmos detrás del cálculo de cargas de trabajo.
+- **Impacto:** Facilita el mantenimiento al permitir cambios en la lógica interna sin afectar a los componentes que consumen los datos.
+
+### 1.2 Modularidad
+Consiste en la segmentación del sistema en componentes funcionales independientes.
+- **Aplicación:** El diseño separa claramente la gestión de Usuarios, Entrenadores y Planes. 
+- **Impacto:** Si el centro deportivo decide actualizar la tecnología de un módulo específico (por ejemplo, migrar la base de datos de ejercicios), el impacto en los demás módulos es nulo o mínimo, permitiendo una escalabilidad eficiente.
+
+### 1.3 Cohesión
+Mide el grado en que las responsabilidades de un módulo o clase están relacionadas entre sí.
+- **Aplicación:** La clase `PlanEntrenamiento` tiene una cohesión alta, ya que se encarga únicamente de la estructura física de la rutina. No asume responsabilidades de facturación, registro de asistencia o gestión de perfiles.
+- **Impacto:** Reduce la probabilidad de errores en cascada y facilita la ejecución de pruebas unitarias.
+
+---
+
+## 2. Modelado de Clases
+
+| Clase | Descripción |
+| :--- | :--- |
+| Usuario | Representa a la persona inscrita y su historial dentro del sistema. |
+| Entrenador | Profesional encargado de la supervisión técnica y asignación de rutinas. |
+| PlanEntrenamiento | Entidad que contiene la lógica, duración y objetivos del ejercicio. |
+| Asignacion | Clase asociativa que gestiona el vínculo entre usuario, plan y tutor. |
+| Ejercicio | Definición técnica de una actividad física específica. |
+
+---
+
+## 3. Definición de Atributos y Métodos
+
+### Clase: Usuario
+- **Atributos:** `id`, `nombre`, `apellido`, `email`, `fechaInscripcion`
+- **Métodos:** - `consultarPlan()`
+  - `consultarEntrenador()`
+  - `actualizarDatos()`
+
+### Clase: Entrenador
+- **Atributos:** `id`, `nombre`, `especialidad`, `certificacion`
+- **Métodos:** - `asignarPlan(usuario, plan)`
+  - `listarUsuariosACargo()`
+  - `actualizarPlan(plan)`
+
+### Clase: PlanEntrenamiento
+- **Atributos:** `id`, `nombre`, `descripcion`, `duracionSemanas`, `nivel`
+- **Métodos:** - `agregarEjercicio(ejercicio)`
+  - `calcularDuracionTotal()`
+  - `mostrarDetalle()`
+
+### Clase: Asignacion
+- **Atributos:** `id`, `usuario`, `plan`, `entrenador`, `fechaInicio`, `fechaFin`
+- **Métodos:** - `estaActiva()`
+  - `renovar()`
+  - `cancelar()`
+
+### Clase: Ejercicio
+- **Atributos:** `nombre`, `series`, `repeticiones`, `descripcion`
+- **Métodos:** - `mostrarInfo()`
+
+---
+
+## 4. Diferenciación de Responsabilidades
+
+El diseño se rige por la separación de intereses para garantizar la calidad del software:
+
+* **Bajo Acoplamiento:** La clase `Usuario` no posee dependencias directas con la estructura de la clase `Ejercicio`. La comunicación se realiza de forma indirecta a través del Plan.
+* **Encapsulamiento:** Los datos sensibles de cada entidad solo pueden ser modificados a través de sus propios métodos, protegiendo la integridad de la información.
+* **Responsabilidad Única:** La clase `Asignacion` centraliza la lógica del negocio referente al tiempo de vigencia del servicio, evitando que las clases `Usuario` o `Entrenador` se sobrecarguen con lógica administrativa.

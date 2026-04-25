@@ -1,0 +1,15 @@
+# Actividad 4: Implementación de Modelos UML en Código
+
+## Representación Estructural: Clase Producto
+El siguiente diagrama define la estructura base para la gestión de inventarios, especificando la encapsulación de datos y el comportamiento esperado:
+
+```text
+┌──────────────────────────┐
+│         Producto         │
+├──────────────────────────┤
+│ - codigo  : String       │
+│ - nombre  : String       │
+│ - precio  : double       │
+├──────────────────────────┤
+│ + mostrarInfo() : void   │
+└──────────────────────────┘

@@ -1,0 +1,130 @@
+# Proyecto Integrador – Sistema de Gestión de Soporte Técnico
+
+## Descripción del caso
+Una empresa de servicios tecnológicos necesita un sistema para gestionar solicitudes de soporte,
+técnicos asignados, clientes y estados del servicio.
+
+---
+
+## 1. Actores y casos de uso del sistema
+
+### Actores identificados
+
+| Actor       | Descripción                                                              |
+|-------------|--------------------------------------------------------------------------|
+| `Cliente`   | Empresa o persona que genera solicitudes de soporte                      |
+| `Tecnico`   | Profesional que atiende y resuelve las solicitudes                       |
+| `Administrador` | Gestiona técnicos, servicios y monitorea el estado del sistema       |
+
+### Casos de uso principales
+
+| #  | Caso de uso                  | Actor(es)               |
+|----|------------------------------|-------------------------|
+| 1  | Crear solicitud de soporte   | Cliente                 |
+| 2  | Consultar estado de solicitud| Cliente                 |
+| 3  | Atender solicitud asignada   | Técnico                 |
+| 4  | Cerrar solicitud resuelta    | Técnico                 |
+| 5  | Asignar técnico a solicitud  | Administrador           |
+| 6  | Registrar nuevo técnico      | Administrador           |
+| 7  | Consultar historial de servicios| Administrador, Cliente|
+
+---
+
+## 2. Diagrama de clases
+
+Ver archivo: **diagrama_clases_integrador.png** (en esta misma carpeta)
+
+### Clases del modelo
+
+| Clase              | Responsabilidad principal                                       |
+|--------------------|-----------------------------------------------------------------|
+| `Cliente`          | Genera y consulta solicitudes de soporte                        |
+| `SolicitudSoporte` | Registra el problema, su estado y la asignación del técnico     |
+| `Tecnico`          | Atiende solicitudes y administra su disponibilidad              |
+| `Servicio`         | Cataloga los tipos de servicio disponibles en la empresa        |
+
+---
+
+## 3. Atributos, métodos y multiplicidades
+
+### Clase `Cliente`
+| Elemento               | Tipo    | Descripción                              |
+|------------------------|---------|------------------------------------------|
+| `- id`                 | int     | Identificador único                      |
+| `- nombre`             | String  | Nombre del cliente                       |
+| `- email`              | String  | Correo de contacto                       |
+| `- telefono`           | String  | Teléfono de contacto                     |
+| `+ crearSolicitud()`   | Solicitud| Genera una nueva solicitud              |
+| `+ consultarEstado()`  | String  | Muestra el estado de sus solicitudes     |
+
+### Clase `SolicitudSoporte`
+| Elemento               | Tipo    | Descripción                              |
+|------------------------|---------|------------------------------------------|
+| `- id`                 | int     | Identificador único de la solicitud      |
+| `- descripcion`        | String  | Descripción del problema reportado       |
+| `- fechaApertura`      | Date    | Fecha en que se creó la solicitud        |
+| `- estado`             | String  | ABIERTA / EN_PROCESO / CERRADA           |
+| `+ asignarTecnico(t)`  | void    | Vincula un técnico a la solicitud        |
+| `+ cerrarSolicitud()`  | void    | Cierra la solicitud y libera al técnico  |
+| `+ cambiarEstado(e)`   | void    | Actualiza el estado manualmente          |
+
+### Clase `Tecnico`
+| Elemento               | Tipo    | Descripción                              |
+|------------------------|---------|------------------------------------------|
+| `- id`                 | int     | Identificador único                      |
+| `- nombre`             | String  | Nombre del técnico                       |
+| `- especialidad`       | String  | Área técnica (redes, hardware, software) |
+| `- disponible`         | boolean | Indica si puede recibir una nueva asignación|
+| `+ atenderSolicitud(s)`| void    | Inicia la atención de una solicitud      |
+| `+ marcarDisponible()` | void    | Libera al técnico para nuevas asignaciones|
+
+### Clase `Servicio`
+| Elemento               | Tipo    | Descripción                              |
+|------------------------|---------|------------------------------------------|
+| `- id`                 | int     | Identificador del tipo de servicio       |
+| `- tipo`               | String  | Categoría del servicio                   |
+| `- descripcion`        | String  | Descripción detallada                    |
+| `+ mostrarDetalle()`   | String  | Retorna información formateada           |
+
+### Multiplicidades de las relaciones
+
+| Relación                              | Multiplicidad | Interpretación                                 |
+|---------------------------------------|---------------|------------------------------------------------|
+| `Cliente` → `SolicitudSoporte`        | 1 a 1..*      | Un cliente puede tener una o varias solicitudes|
+| `SolicitudSoporte` → `Tecnico`        | 1..* a 1      | Una solicitud es atendida por un técnico       |
+| `SolicitudSoporte` → `Servicio`       | 1..* a 1..*   | Una solicitud puede involucrar varios servicios|
+
+---
+
+## 4. Traducción de clases a código
+
+Ver archivos en esta carpeta:
+- **Java:** `Cliente.java`, `SolicitudSoporte.java`, `Tecnico.java`, `Servicio.java`
+- **Python:** `sistema_soporte.py` (contiene las cuatro clases + demostración ejecutable)
+
+---
+
+## 5. Justificación del diseño
+
+### Cohesión
+Cada clase tiene una única razón para cambiar:
+- `Cliente` solo gestiona datos del cliente y genera solicitudes.
+- `SolicitudSoporte` solo administra el ciclo de vida del ticket (estado, asignación, cierre).
+- `Tecnico` solo controla su disponibilidad y la atención de solicitudes.
+- `Servicio` solo cataloga los tipos de servicio.
+Ninguna clase mezcla responsabilidades de otra → **alta cohesión**.
+
+### Acoplamiento
+Las clases se conocen por referencias, no por implementaciones internas:
+- `SolicitudSoporte` conoce a `Cliente` y `Tecnico` solo a través de sus interfaces públicas.
+- Si se cambia la lógica interna de `Tecnico` (por ejemplo, añadir prioridad), `SolicitudSoporte`
+  no necesita modificarse, siempre que los métodos públicos mantengan su firma.
+Esto produce **bajo acoplamiento**, lo cual facilita el mantenimiento.
+
+### Claridad del modelo
+- Los nombres de clases son sustantivos del dominio real (Cliente, Tecnico, Solicitud, Servicio).
+- Los métodos usan verbos en infinitivo que expresan acciones concretas (crearSolicitud, cerrarSolicitud).
+- Los estados de la solicitud se definen como constantes (`ABIERTA`, `EN_PROCESO`, `CERRADA`),
+  evitando cadenas mágicas y reduciendo el riesgo de errores tipográficos.
+- La clase `SolicitudSoporte` actúa como coordinador central del flujo: recibe la solicitud,
+  registra la asignación y gestiona el cierre, manteniéndose alineada con el flujo real del negocio.
